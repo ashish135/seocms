@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Category;
 
+
 class Leads extends Model
 {
     protected $fillable = ['Project', 'Region','Main_Category','Sub_Category','Keyword','Activity_Type','Location','Targeted_URL','URL_After_Submission','DA','PA','SS','Username','Password','Email','Status'];
@@ -15,4 +16,8 @@ class Leads extends Model
 
 	}
 
+	public function getCreatedAtAttribute($date)
+	{
+	    return \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('Y-m-d');
+	}
 }

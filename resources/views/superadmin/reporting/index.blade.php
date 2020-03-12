@@ -12,27 +12,36 @@
                     @endif
                     <div class="card-body">
                             <div class="filters">
+                            @if(request()->get('bycalendar') == "customdate")
+                                <div class="customdateview">
+                                  <form action="{{ route('reporting') }}" method="GET">
+                                    <input type="hidden" name="bycalendar" value="customdate">
+                                      <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="From Date" name="fromdate" required="" value="{{ request()->get('fromdate') }}" />
+                                      <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="To Date" name="todate" value="{{ request()->get('todate') }}" required="" />
+                                      <button>Submit</button>
+                                  </form>
+                                </div>
+                              @endif
                               <form id="calendar_form" action="{{ route('reporting') }}" method="GET">
                                 @if(request()->get('bycalendar') == "day")
                                 <div class="view">
-                                  <button type="button" id="prev" class="prev btn"><</button><span class="format">{{ Carbon\Carbon::now()->format('D') }}</span><button id="next" type="button" class="btn next">></button>
+                                  <a id="prev" href="/admin/reporting?bycalendar=day&daytype=prev&date={{ $today->format('Y-m-d') }}" class="prev btn"><</a><span class="format">{{ $view }}</span><a id="next" href="/admin/reporting?bycalendar=day&daytype=next&date={{ $today->format('Y-m-d') }}" class="btn next">></a>
                                 </div>
                                 @elseif(request()->get('bycalendar') == "weekly")
                                 <div class="view">
-                                  <button type="button" id="prev" class="prev btn"><</button><span class="format">{{ Carbon\Carbon::now()->format('M') }}</span><button id="next" type="button" class="btn next">></button>
+                                  <a id="prev" href="/admin/reporting?bycalendar=weekly&daytype=prev&date={{ $today->format('Y-m-d') }}" class="prev btn"><</a><span class="format">{{ $view }}</span><a id="next" href="/admin/reporting?bycalendar=weekly&daytype=next&date={{ $today->format('Y-m-d') }}" class="btn next">></a>
                                 </div>
                                 @elseif(request()->get('bycalendar') == "monthly")
                                 <div class="view">
-                                  <button type="button" id="prev" class="prev btn"><</button><span class="format">{{ Carbon\Carbon::now()->format('M') }}</span><button id="next" type="button" class="btn next">></button>
+                                  <a id="prev" href="/admin/reporting?bycalendar=monthly&daytype=prev&date={{ $today->format('Y-m-d') }}" class="prev btn"><</a><span class="format">{{ $view }}</span><a id="next" href="/admin/reporting?bycalendar=monthly&daytype=next&date={{ $today->format('Y-m-d') }}" class="btn next">></a>
                                 </div>
                                 @endif
-
-                                <input type="hidden" name="viewcount" value="0">
                                 <select name="bycalendar" onchange="return handleCalendar(); ">
                                   <option value="">Select View</option>
                                   <option value="day" {{ request()->get('bycalendar') == "day" ? 'selected' : '' }}>Day</option><
                                   <option value="weekly" {{ request()->get('bycalendar') == "weekly" ? 'selected' : '' }}>Weekly</option>
                                   <option value="monthly" {{ request()->get('bycalendar') == "monthly" ? 'selected' : '' }}>Monthly</option>
+                                   <option value="customdate" {{ request()->get('bycalendar') == "customdate" ? 'selected' : '' }}>Custom Date</option>
                                 </select>
                                 <a class="btn" href="{{ route('reporting') }}">Clear</a>
                               </form>

@@ -16,6 +16,15 @@ html {
     border: 1px solid #e5e5e5;
 }.format {
     padding: 3px;
+}.filters {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 10px;
+}.filters input, .filters button, .filters select {
+    height: 30px;
+    padding: 3px 10px;
+}.customdateview {
+    margin-right: 15px;
 }
 body {
   margin: 0;

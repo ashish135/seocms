@@ -129,8 +129,8 @@ class LeadsController extends Controller
 
     public function reporting(Request $request, Leads $leads)
     {   
-        //dd($request->all());
-        $today =  \Carbon\Carbon::now();
+        
+
         if ($request->project != null || $request->subcategory != null || $request->maincategory != null || $request->keyword != null || $request->region != null || $request->activity != null) {
             $leads = Leads::where('Project', $request->project)
             ->orWhere('Main_Category', $request->maincategory)
@@ -139,13 +139,56 @@ class LeadsController extends Controller
             ->orWhere('Region', $request->region)
             ->orWhere('Activity_Type', $request->activity)
             ->get();
-        }else if($request->viewcount == 0 && $request->bycalendar == "day"){
-            $leads = Leads::where('created_at', date('Y-m-d'))->get();
-        }else if($request->viewcount == 0 && $request->bycalendar == "weekly"){
-            $min = $today->sub(1, 'week');
-            $leads = Leads::where('created_at', '>=', $min)->where('created_at', '<=', date('Y-m-d'))->get();
-        }else if($request->viewcount == 0 && $request->bycalendar == "month"){
-            $leads = Leads::where('created_at', date('Y-m-d'))->get();
+        }else if($request->bycalendar == "day"){
+            $today =  \Carbon\Carbon::now();
+            if ($request->daytype == "prev") {
+                $today = \Carbon\Carbon::parse($request->date);
+                $today = $today->sub(1, 'day');
+            }if($request->daytype == "next"){
+                $today = \Carbon\Carbon::parse($request->date);
+                $today = $today->add(1, 'day');
+            }
+            $leads = Leads::where('created_at', $today->format('Y-m-d'))->get();
+            $view = $today->format('D');
+        }else if($request->bycalendar == "weekly"){
+            $today =  \Carbon\Carbon::now();
+            $firstDay = $today->modify('this week')->format('Y-m-d');
+            $lastDay = $today->modify('this week +6 days')->format('Y-m-d');
+
+            if ($request->daytype == "prev") {
+                $today = \Carbon\Carbon::parse($request->date);
+                $today = $today->sub(1, 'week');
+                $firstDay = $today->modify('this week')->format('Y-m-d');
+                $lastDay = $today->modify('this week +6 days')->format('Y-m-d');
+            }if($request->daytype == "next"){
+                $today = \Carbon\Carbon::parse($request->date);
+                $today = $today->add(1, 'week');
+                $firstDay = $today->modify('this week')->format('Y-m-d');
+                $lastDay = $today->modify('this week +6 days')->format('Y-m-d');
+            }
+            $leads = Leads::where('created_at', '>=', $firstDay)->where('created_at', '<=', $lastDay)->get();
+            $view = $firstDay.' - '.$lastDay;
+        }else if($request->bycalendar == "monthly"){
+            $today =  \Carbon\Carbon::now();
+            $firstDay = $today->firstOfMonth()->format('Y-m-d');
+            $lastDay = $today->lastOfMonth()->format('Y-m-d');
+            if ($request->daytype == "prev") {
+                $today = \Carbon\Carbon::parse($request->date);
+                $today = $today->firstOfMonth();
+                $today = $today->subMonths(1);
+                $firstDay = $today->firstOfMonth()->format('Y-m-d');
+                $lastDay = $today->lastOfMonth()->format('Y-m-d');
+            }if($request->daytype == "next"){
+                $today = \Carbon\Carbon::parse($request->date);
+                $today = $today->firstOfMonth();
+                $today = $today->addMonths(1);
+                $firstDay = $today->firstOfMonth()->format('Y-m-d');
+                $lastDay = $today->lastOfMonth()->format('Y-m-d');
+            }
+            $leads = Leads::where('created_at', '>=', $firstDay)->where('created_at', '<=', $lastDay)->get();
+            $view = $today->format('M, Y');
+        }else if($request->bycalendar == "customdate" && $request->fromdate != null && $request->todate != null){
+            $leads = Leads::where('created_at', '>=', $request->fromdate)->where('created_at', '<=', $request->todate)->get();
         }else{
             $leads = Leads::paginate(10);
         }
@@ -156,7 +199,8 @@ class LeadsController extends Controller
         $regions = Regions::all();
         $activitys = Activity::all();
         $projects = projects::all();
-        return view('superadmin.reporting.index', compact('leads', 'projects', 'maincategories', 'categories', 'keywords', 'regions', 'activitys'));
+
+        return view('superadmin.reporting.index', compact('leads', 'today', 'view', 'projects', 'maincategories', 'categories', 'keywords', 'regions', 'activitys'));
     }
 
     public function showreporting($id)
