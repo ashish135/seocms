@@ -129,17 +129,8 @@ class LeadsController extends Controller
 
     public function reporting(Request $request, Leads $leads)
     {   
-        
-
-        if ($request->project != null || $request->subcategory != null || $request->maincategory != null || $request->keyword != null || $request->region != null || $request->activity != null) {
-            $leads = Leads::where('Project', $request->project)
-            ->orWhere('Main_Category', $request->maincategory)
-            ->orWhere('Sub_Category', $request->subcategory)
-            ->orWhere('Keyword', $request->keyword)
-            ->orWhere('Region', $request->region)
-            ->orWhere('Activity_Type', $request->activity)
-            ->get();
-        }else if($request->bycalendar == "day"){
+        $today = $view = null;
+/*else if($request->bycalendar == "day"){
             $today =  \Carbon\Carbon::now();
             if ($request->daytype == "prev") {
                 $today = \Carbon\Carbon::parse($request->date);
@@ -189,8 +180,26 @@ class LeadsController extends Controller
             $view = $today->format('M, Y');
         }else if($request->bycalendar == "customdate" && $request->fromdate != null && $request->todate != null){
             $leads = Leads::where('created_at', '>=', $request->fromdate)->where('created_at', '<=', $request->todate)->get();
+        }*/
+        $leads = $leads->newQuery();
+
+        if ($request->project != null){
+            $leads->where('Project', $request->project);
+        }if($request->subcategory != null){
+            $leads->where('Sub_Category', $request->subcategory);
+        } if($request->maincategory != null){
+            $leads->where('Main_Category', $request->maincategory);
+        } if($request->keyword != null){
+            $leads->where('Keyword', $request->keyword);
+        } if($request->region != null){
+            $leads->where('Region', $request->region);
+        } if($request->activity != null) {
+            $leads->where('Activity_Type', $request->activity);
+        }
+        if (!$request->has('project') && !$request->has('subcategory') && !$request->has('maincategory') && !$request->has('keyword') && !$request->has('region') && !$request->has('activity')) {
+          $leads = Leads::paginate(5);
         }else{
-            $leads = Leads::paginate(10);
+          $leads = $leads->paginate(5);
         }
         
         $categories = Category::where('parent_id','!=', null)->get();

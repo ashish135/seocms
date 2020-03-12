@@ -57,7 +57,7 @@
                                 <select name="maincategory" onchange="return handleFilter(); ">
                                   <option value="">Main Categories</option>
                                   @foreach($maincategories as $mc)
-                                    <option value="{{$mc->name}}" {{ $mc->name == request()->get('maincategory') ? 'selected' : '' }}>{{$mc->name}}</option>
+                                    <option value="{{$mc->id}}" {{ $mc->id == request()->get('maincategory') ? 'selected' : '' }}>{{$mc->name}}</option>
                                   @endforeach
                                 </select>
                                 <select name="subcategory" onchange="return handleFilter(); ">
@@ -114,7 +114,7 @@
                               @endforeach
                             </tbody>
                               </table>
-                       
+                        {{ $leads->links() }}
                     </div>
                 </div>
             </div>
