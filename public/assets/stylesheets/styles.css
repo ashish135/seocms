@@ -25,6 +25,7 @@ html {
     padding: 3px 10px;
 }.customdateview {
     margin-right: 15px;
+    display: contents;
 }
 body {
   margin: 0;

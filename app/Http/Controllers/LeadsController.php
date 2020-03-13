@@ -129,58 +129,8 @@ class LeadsController extends Controller
 
     public function reporting(Request $request, Leads $leads)
     {   
-        $today = $view = null;
-/*else if($request->bycalendar == "day"){
-            $today =  \Carbon\Carbon::now();
-            if ($request->daytype == "prev") {
-                $today = \Carbon\Carbon::parse($request->date);
-                $today = $today->sub(1, 'day');
-            }if($request->daytype == "next"){
-                $today = \Carbon\Carbon::parse($request->date);
-                $today = $today->add(1, 'day');
-            }
-            $leads = Leads::where('created_at', $today->format('Y-m-d'))->get();
-            $view = $today->format('D');
-        }else if($request->bycalendar == "weekly"){
-            $today =  \Carbon\Carbon::now();
-            $firstDay = $today->modify('this week')->format('Y-m-d');
-            $lastDay = $today->modify('this week +6 days')->format('Y-m-d');
+        $today = $view = $nexturl = $prevurl = null;
 
-            if ($request->daytype == "prev") {
-                $today = \Carbon\Carbon::parse($request->date);
-                $today = $today->sub(1, 'week');
-                $firstDay = $today->modify('this week')->format('Y-m-d');
-                $lastDay = $today->modify('this week +6 days')->format('Y-m-d');
-            }if($request->daytype == "next"){
-                $today = \Carbon\Carbon::parse($request->date);
-                $today = $today->add(1, 'week');
-                $firstDay = $today->modify('this week')->format('Y-m-d');
-                $lastDay = $today->modify('this week +6 days')->format('Y-m-d');
-            }
-            $leads = Leads::where('created_at', '>=', $firstDay)->where('created_at', '<=', $lastDay)->get();
-            $view = $firstDay.' - '.$lastDay;
-        }else if($request->bycalendar == "monthly"){
-            $today =  \Carbon\Carbon::now();
-            $firstDay = $today->firstOfMonth()->format('Y-m-d');
-            $lastDay = $today->lastOfMonth()->format('Y-m-d');
-            if ($request->daytype == "prev") {
-                $today = \Carbon\Carbon::parse($request->date);
-                $today = $today->firstOfMonth();
-                $today = $today->subMonths(1);
-                $firstDay = $today->firstOfMonth()->format('Y-m-d');
-                $lastDay = $today->lastOfMonth()->format('Y-m-d');
-            }if($request->daytype == "next"){
-                $today = \Carbon\Carbon::parse($request->date);
-                $today = $today->firstOfMonth();
-                $today = $today->addMonths(1);
-                $firstDay = $today->firstOfMonth()->format('Y-m-d');
-                $lastDay = $today->lastOfMonth()->format('Y-m-d');
-            }
-            $leads = Leads::where('created_at', '>=', $firstDay)->where('created_at', '<=', $lastDay)->get();
-            $view = $today->format('M, Y');
-        }else if($request->bycalendar == "customdate" && $request->fromdate != null && $request->todate != null){
-            $leads = Leads::where('created_at', '>=', $request->fromdate)->where('created_at', '<=', $request->todate)->get();
-        }*/
         $leads = $leads->newQuery();
 
         if ($request->project != null){
@@ -195,7 +145,88 @@ class LeadsController extends Controller
             $leads->where('Region', $request->region);
         } if($request->activity != null) {
             $leads->where('Activity_Type', $request->activity);
+        } if($request->bycalendar == "day"){
+
+            $today =  \Carbon\Carbon::now();
+            
+            $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=day&date='.\Carbon\Carbon::now()->sub(1, 'day')->format('Y-m-d').'&daytype=prev';
+            $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=day&date='.\Carbon\Carbon::now()->add(1, 'day')->format('Y-m-d').'&daytype=next';
+
+            if ($request->daytype == "prev") {
+                
+                $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=day&date='.\Carbon\Carbon::parse($request->date)->sub(1, 'day')->format('Y-m-d').'&daytype=prev';
+                
+                $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=day&date='.\Carbon\Carbon::parse($request->date)->add(1, 'day')->format('Y-m-d').'&daytype=next';
+            }if($request->daytype == "next"){
+
+                $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=day&date='.\Carbon\Carbon::parse($request->date)->sub(1, 'day')->format('Y-m-d').'&daytype=prev';
+
+                $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=day&date='.\Carbon\Carbon::parse($request->date)->add(1, 'day')->format('Y-m-d').'&daytype=next';
+            }
+            $leads->where('created_at', \Carbon\Carbon::parse($request->date)->format('Y-m-d'));
+            $view = \Carbon\Carbon::parse($request->date)->format('D');
+        } if($request->bycalendar == "weekly"){
+            $today =  \Carbon\Carbon::now();
+            $firstDay = $today->modify('this week')->format('Y-m-d');
+            $lastDay = $today->modify('this week +6 days')->format('Y-m-d');
+
+            $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=weekly&date='.\Carbon\Carbon::now()->sub(1, 'week')->format('Y-m-d').'&daytype=prev';
+
+            $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=weekly&date='.\Carbon\Carbon::now()->add(1, 'week')->format('Y-m-d').'&daytype=next';
+
+            if ($request->daytype == "prev") {
+
+                $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=weekly&date='.\Carbon\Carbon::parse($request->date)->sub(1, 'week')->format('Y-m-d').'&daytype=prev';
+
+                $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=weekly&date='.\Carbon\Carbon::parse($request->date)->add(1, 'week')->format('Y-m-d').'&daytype=next';
+
+                $firstDay = \Carbon\Carbon::parse($request->date)->modify('this week')->format('Y-m-d');
+                $lastDay = \Carbon\Carbon::parse($request->date)->modify('this week +6 days')->format('Y-m-d');
+            }if($request->daytype == "next"){
+                $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=weekly&date='.\Carbon\Carbon::parse($request->date)->sub(1, 'week')->format('Y-m-d').'&daytype=prev';
+
+                $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=weekly&date='.\Carbon\Carbon::parse($request->date)->add(1, 'week')->format('Y-m-d').'&daytype=next';
+
+                $firstDay = \Carbon\Carbon::parse($request->date)->modify('this week')->format('Y-m-d');
+                $lastDay = \Carbon\Carbon::parse($request->date)->modify('this week +6 days')->format('Y-m-d');
+                }
+            $leads->where('created_at', '>=', $firstDay)->where('created_at', '<=', $lastDay);
+            $view = $firstDay.' - '.$lastDay;
+        }if($request->bycalendar == "monthly"){
+            $today =  \Carbon\Carbon::now();
+            $firstDay = $today->firstOfMonth()->format('Y-m-d');
+            $lastDay = $today->lastOfMonth()->format('Y-m-d');
+
+            $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=monthly&date='.\Carbon\Carbon::now()->subMonths(1)->format('Y-m-d').'&daytype=prev';
+
+            $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=monthly&date='.\Carbon\Carbon::now()->addMonths(1)->format('Y-m-d').'&daytype=next';
+
+            if ($request->daytype == "prev") {
+
+                $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=monthly&date='.\Carbon\Carbon::parse($request->date)->firstOfMonth()->subMonths(1)->format('Y-m-d').'&daytype=prev';
+
+                $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=monthly&date='.\Carbon\Carbon::parse($request->date)->firstOfMonth()->addMonths(1)->format('Y-m-d').'&daytype=next';
+
+                $firstDay = \Carbon\Carbon::parse($request->date)->firstOfMonth()->format('Y-m-d');
+                $lastDay = \Carbon\Carbon::parse($request->date)->lastOfMonth()->format('Y-m-d');
+
+            }if($request->daytype == "next"){
+
+                $prevurl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=monthly&date='.\Carbon\Carbon::parse($request->date)->firstOfMonth()->subMonths(1)->format('Y-m-d').'&daytype=prev';
+
+                $nexturl = url()->current().'?project='.$request->project.'&maincategory='.$request->maincategory.'&subcategory='.$request->subcategory.'&keyword='.$request->keyword.'&region='.$request->region.'&activity='.$request->activity.'&bycalendar=monthly&date='.\Carbon\Carbon::parse($request->date)->firstOfMonth()->addMonths(1)->format('Y-m-d').'&daytype=next';
+
+                $firstDay = \Carbon\Carbon::parse($request->date)->firstOfMonth()->format('Y-m-d');
+                $lastDay = \Carbon\Carbon::parse($request->date)->lastOfMonth()->format('Y-m-d');
+
+            }
+            $leads->where('created_at', '>=', $firstDay)->where('created_at', '<=', $lastDay);
+            $view = \Carbon\Carbon::parse($request->date)->format('M, Y');
+            
+        } if($request->bycalendar == "customdate" && $request->fromdate != null && $request->todate != null){
+            $leads->where('created_at', '>=', $request->fromdate)->where('created_at', '<=', $request->todate);
         }
+
         if (!$request->has('project') && !$request->has('subcategory') && !$request->has('maincategory') && !$request->has('keyword') && !$request->has('region') && !$request->has('activity')) {
           $leads = Leads::paginate(5);
         }else{
@@ -209,7 +240,7 @@ class LeadsController extends Controller
         $activitys = Activity::all();
         $projects = projects::all();
 
-        return view('superadmin.reporting.index', compact('leads', 'today', 'view', 'projects', 'maincategories', 'categories', 'keywords', 'regions', 'activitys'));
+        return view('superadmin.reporting.index', compact('leads', 'today', 'view', 'projects', 'maincategories', 'categories', 'keywords', 'regions', 'activitys', 'nexturl', 'prevurl'));
     }
 
     public function showreporting($id)

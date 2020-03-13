@@ -12,41 +12,6 @@
                     <?php endif; ?>
                     <div class="card-body">
                             <div class="filters">
-                            <?php if(request()->get('bycalendar') == "customdate"): ?>
-                                <div class="customdateview">
-                                  <form action="<?php echo e(route('reporting')); ?>" method="GET">
-                                    <input type="hidden" name="bycalendar" value="customdate">
-                                      <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="From Date" name="fromdate" required="" value="<?php echo e(request()->get('fromdate')); ?>" />
-                                      <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="To Date" name="todate" value="<?php echo e(request()->get('todate')); ?>" required="" />
-                                      <button>Submit</button>
-                                  </form>
-                                </div>
-                              <?php endif; ?>
-                              <form id="calendar_form" action="<?php echo e(route('reporting')); ?>" method="GET">
-                                <?php if(request()->get('bycalendar') == "day"): ?>
-                                <div class="view">
-                                  <a id="prev" href="/admin/reporting?bycalendar=day&daytype=prev&date=<?php echo e($today->format('Y-m-d')); ?>" class="prev btn"><</a><span class="format"><?php echo e($view); ?></span><a id="next" href="/admin/reporting?bycalendar=day&daytype=next&date=<?php echo e($today->format('Y-m-d')); ?>" class="btn next">></a>
-                                </div>
-                                <?php elseif(request()->get('bycalendar') == "weekly"): ?>
-                                <div class="view">
-                                  <a id="prev" href="/admin/reporting?bycalendar=weekly&daytype=prev&date=<?php echo e($today->format('Y-m-d')); ?>" class="prev btn"><</a><span class="format"><?php echo e($view); ?></span><a id="next" href="/admin/reporting?bycalendar=weekly&daytype=next&date=<?php echo e($today->format('Y-m-d')); ?>" class="btn next">></a>
-                                </div>
-                                <?php elseif(request()->get('bycalendar') == "monthly"): ?>
-                                <div class="view">
-                                  <a id="prev" href="/admin/reporting?bycalendar=monthly&daytype=prev&date=<?php echo e($today->format('Y-m-d')); ?>" class="prev btn"><</a><span class="format"><?php echo e($view); ?></span><a id="next" href="/admin/reporting?bycalendar=monthly&daytype=next&date=<?php echo e($today->format('Y-m-d')); ?>" class="btn next">></a>
-                                </div>
-                                <?php endif; ?>
-                                <select name="bycalendar" onchange="return handleCalendar(); ">
-                                  <option value="">Select View</option>
-                                  <option value="day" <?php echo e(request()->get('bycalendar') == "day" ? 'selected' : ''); ?>>Day</option><
-                                  <option value="weekly" <?php echo e(request()->get('bycalendar') == "weekly" ? 'selected' : ''); ?>>Weekly</option>
-                                  <option value="monthly" <?php echo e(request()->get('bycalendar') == "monthly" ? 'selected' : ''); ?>>Monthly</option>
-                                   <option value="customdate" <?php echo e(request()->get('bycalendar') == "customdate" ? 'selected' : ''); ?>>Custom Date</option>
-                                </select>
-                                <a class="btn" href="<?php echo e(route('reporting')); ?>">Clear</a>
-                              </form>
-                            </div>
-                            <div class="filters">
                               <form id="filter_form" action="<?php echo e(route('reporting')); ?>" method="GET">
                                 <select name="project" onchange="return handleFilter(); ">
                                   <option value="">All Projects</option>
@@ -57,7 +22,7 @@
                                 <select name="maincategory" onchange="return handleFilter(); ">
                                   <option value="">Main Categories</option>
                                   <?php $__currentLoopData = $maincategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($mc->name); ?>" <?php echo e($mc->name == request()->get('maincategory') ? 'selected' : ''); ?>><?php echo e($mc->name); ?></option>
+                                    <option value="<?php echo e($mc->id); ?>" <?php echo e($mc->id == request()->get('maincategory') ? 'selected' : ''); ?>><?php echo e($mc->name); ?></option>
                                   <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <select name="subcategory" onchange="return handleFilter(); ">
@@ -83,6 +48,34 @@
                                   <?php $__currentLoopData = $activitys; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($a->name); ?>" <?php echo e($a->name == request()->get('activity') ? 'selected' : ''); ?>><?php echo e($a->name); ?></option>
                                   <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                                <?php if(request()->get('bycalendar') == "customdate"): ?>
+                                <div class="customdateview">
+                                    <input type="hidden" name="bycalendar" value="customdate">
+                                      <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="From Date" name="fromdate" required="" value="<?php echo e(request()->get('fromdate')); ?>" />
+                                      <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="To Date" name="todate" value="<?php echo e(request()->get('todate')); ?>" required="" />
+                                      <button>Submit</button>
+                                </div>
+                              <?php endif; ?>
+                              <?php if(request()->get('bycalendar') == "day"): ?>
+                                <div class="view">
+                                  <a id="prev" href="<?php echo e($prevurl); ?>" class="prev btn"><</a><span class="format"><?php echo e($view); ?></span><a id="next" href="<?php echo e($nexturl); ?>" class="btn next">></a>
+                                </div>
+                                <?php elseif(request()->get('bycalendar') == "weekly"): ?>
+                                <div class="view">
+                                  <a id="prev" href="<?php echo e($prevurl); ?>" class="prev btn"><</a><span class="format"><?php echo e($view); ?></span><a id="next" href="<?php echo e($nexturl); ?>" class="btn next">></a>
+                                </div>
+                                <?php elseif(request()->get('bycalendar') == "monthly"): ?>
+                                <div class="view">
+                                  <a id="prev" href="<?php echo e($prevurl); ?>" class="prev btn"><</a><span class="format"><?php echo e($view); ?></span><a id="next" href="<?php echo e($nexturl); ?>" class="btn next">></a>
+                                </div>
+                                <?php endif; ?>
+                                <select name="bycalendar" onchange="return handleFilter(); ">
+                                  <option value="">Select View</option>
+                                  <option value="day" <?php echo e(request()->get('bycalendar') == "day" ? 'selected' : ''); ?>>Day</option><
+                                  <option value="weekly" <?php echo e(request()->get('bycalendar') == "weekly" ? 'selected' : ''); ?>>Weekly</option>
+                                  <option value="monthly" <?php echo e(request()->get('bycalendar') == "monthly" ? 'selected' : ''); ?>>Monthly</option>
+                                   <option value="customdate" <?php echo e(request()->get('bycalendar') == "customdate" ? 'selected' : ''); ?>>Custom Date</option>
                                 </select>
                                 <a class="btn" href="<?php echo e(route('reporting')); ?>">Clear</a>
                               </form>
@@ -114,7 +107,8 @@
                               <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                               </table>
-                       
+                        <?php echo e($leads->appends($_GET)->links()); ?>
+
                     </div>
                 </div>
             </div>
